@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem!
     private var dragDestinationView: DragDestinationView!
+    private var dropPanel: DropPanelController?
     private var menu: NSMenu!
 
     // MARK: - Windows
@@ -61,6 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         logger.info("DropShot launching")
 
         setupStatusItem()
+        setupDropPanel()
         buildMenu()
         setupNotifications()
         setupKeyboardShortcuts()
@@ -131,6 +133,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.handleFileDrop(urls)
         }
         button.addSubview(dragDestinationView)
+    }
+
+    /// A bigger drop target than the menu bar icon, shown during file drags.
+    private func setupDropPanel() {
+        let panel = DropPanelController { [weak self] urls in
+            self?.handleFileDrop(urls)
+        }
+        panel.start()
+        dropPanel = panel
     }
 
     // MARK: - Menu Building

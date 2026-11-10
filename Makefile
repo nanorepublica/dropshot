@@ -1,4 +1,4 @@
-.PHONY: build test clean run lint format dmg docker-test
+.PHONY: build install test clean run lint format dmg docker-test
 
 # DropShot - macOS Menu Bar SFTP Upload App
 # Build and development targets
@@ -9,6 +9,26 @@ DOCKER_COMPOSE_TEST = docker compose -f docker-compose.test.yml
 # Build release binary
 build:
 	swift build $(SWIFT_BUILD_FLAGS)
+
+# Build, bundle, ad-hoc sign and install to ~/Applications.
+# Needs full Xcode: a dependency uses #Preview, which the Command Line Tools can't build.
+XCODE_DIR = /Applications/Xcode.app/Contents/Developer
+APP = .build/DropShot.app
+
+install:
+	DEVELOPER_DIR=$(XCODE_DIR) swift build $(SWIFT_BUILD_FLAGS)
+	rm -rf $(APP)
+	mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
+	# Sign the bare binary before bundling: SwiftPM needs resource bundles in the .app root, which a bundle signature rejects.
+	codesign --force --sign - .build/release/DropShot
+	cp .build/release/DropShot $(APP)/Contents/MacOS/
+	cp DropShot/App/Info.plist $(APP)/Contents/
+	cp -R .build/release/*.bundle $(APP)/
+	-pkill -x DropShot
+	rm -rf ~/Applications/DropShot.app
+	mkdir -p ~/Applications
+	cp -R $(APP) ~/Applications/
+	open ~/Applications/DropShot.app
 
 # Run all tests
 test:
