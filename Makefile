@@ -10,7 +10,7 @@ DOCKER_COMPOSE_TEST = docker compose -f docker-compose.test.yml
 build:
 	swift build $(SWIFT_BUILD_FLAGS)
 
-# Build, bundle, ad-hoc sign and install to ~/Applications.
+# Build, bundle, ad-hoc sign and install to /Applications.
 # Needs full Xcode: a dependency uses #Preview, which the Command Line Tools can't build.
 XCODE_DIR = /Applications/Xcode.app/Contents/Developer
 APP = .build/DropShot.app
@@ -25,10 +25,9 @@ install:
 	cp DropShot/App/Info.plist $(APP)/Contents/
 	cp -R .build/release/*.bundle $(APP)/
 	-pkill -x DropShot
-	rm -rf ~/Applications/DropShot.app
-	mkdir -p ~/Applications
-	cp -R $(APP) ~/Applications/
-	open ~/Applications/DropShot.app
+	rm -rf /Applications/DropShot.app
+	cp -R $(APP) /Applications/
+	open /Applications/DropShot.app
 
 # Run all tests
 test:
